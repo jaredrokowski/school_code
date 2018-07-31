@@ -1,0 +1,37 @@
+library(xlsx)
+FILE_name <- "/Users/jaredrokowski/Desktop/pseudo_genes2_t1.xlsx"
+x <- FILE_name
+  datafile <- read.xlsx(x, sheetIndex = 1)
+  datafile_final <- as.data.frame(apply(datafile[-1,2:length(datafile)], 2,
+                                        function(x) as.numeric(x)))
+  
+  datagroups <- datafile[1,]
+  sample_names <- datafile[-1,1]
+  
+  data_labels <- unique(sapply(datafile[1,2:length(datafile)],
+                               function(x) as.character(x)))
+  
+  boolean <- grepl(data_labels[1], sapply(datafile[1,2:length(datafile)],
+                                          function(x) as.character(x)))
+
+  boolean2 <- grepl(data_labels[2], sapply(datafile[1,2:length(datafile)],
+                                           function(x) as.character(x)))
+
+  p_value <- apply(datafile_final[1:length(datafile_final)], 1,
+                   function(x) t.test(x[boolean], x[boolean2], var.equal = TRUE)$p.value)
+
+  datafile_with_samples <- cbind(sample_names, datafile_final)
+
+  datagroups$p_value <- NA
+  colnames(datagroups)[1] <- "sample_names"
+  
+  datafile_for_real_final <- cbind(datafile_with_samples, as.data.frame(p_value))
+  datafile_for_real_final <- rbind(datagroups, datafile_for_real_final)
+  #write.xlsx(datagroups, paste("p_values", x, sep = "_"), row.names = FALSE, showNA = FALSE)
+  #write.xlsx(datafile_for_real_final, paste("p_values", x, sep = "_"), 
+             # sheetName = "Sheet2", append = TRUE, row.names = FALSE, showNA = FALSE)
+  write.table(datafile_for_real_final, "test.xls", col.names = TRUE, row.names = FALSE, sep="\t", na = "")
+
+
+
+w

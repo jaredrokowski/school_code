@@ -1,0 +1,20 @@
+t.result <- apply(pseudo_data[,2:9], 1, function(x) t.test(x[2:5],x[6:9],paired = TRUE))
+-This is to apply the ttest function to the dataset pseudo_data using a paired ttest and store all of the data in the object t.result
+-apply uses the syntex apply(X, MARGIN, FUN, ...)
+	-X is array, including a matrix
+	-MARGIN is a vector giving the subscripts which the function will apply over. For a matrix 1 indicates rows, 2 indicates columns, and c(1, 2) indicates rows and columns. Where x has characters dimnames it can be a character vector selecting dimnames.
+	-FUN is the function to be applied, in this case the t.test function using the columns[2:5] vs columns[6:9]
+	-... are the optional arguments to FUN, in this case the "paired = TRUE" tells it to apply the paired t.test function
+-Finally the result is stored in t.result
+-This runs the t.test Paired, which is special and should only be used to pair data off for significance. 
+	-For example say we have data from several patients about normal cells and tumor cells in each, we want to run the data from each person against their own normal to find the significance.
+	-People could all have their own values for "normal" cells and Tumor cells so simply running the t.test against all of them will not return significant results.
+
+pseudo_data$p_value <- unlist(lapply(t.result, function(x) x$p.value))
+-This is to strip the p.value from the object t.result and add it as a row to the data frame pseudo_data
+-First we select the p.value's of all the rows in t.result using the lapply function, which returns a list of the same length as x, each element of which is a result of applying FUN to the corresponding element
+-Then we use the unlist function, which when given a list structure will simplify it to produce a vector which contains all the atomic components which occur in x
+-Altogether we grab the p.value of all elements of t.result and then add it tot he pseudo_data data frame under the column p_value.
+
+pseudo_data$p_result <- apply(pseudo_data[,2:9], 1, function(x) t.test(x[2:5],x[6:9])$p.value)
+-This does it all in one step, where it runs the t.test function on every row because of the apply function, then grabs the values of p.value and then adds it to a new column in our data frame.
